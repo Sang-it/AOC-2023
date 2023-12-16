@@ -18,10 +18,6 @@ findSumOne :: String -> Int
 findSumOne input = sum $ map (removeNoise . parseNumber) (lines input)
 
 -- Part Two
--- TODO: Doesn't work if the words overlap
--- Example : "oneight" is read as 1 instead of 8
---
--- Failed Attempt
 spelledNums =
     [ ("one", 1)
     , ("two", 2)
@@ -67,45 +63,23 @@ parseNumberLike =
         <|> parseStrings
         <|> P.try parseNoise
 
-parseLine :: String -> [String]
-parseLine line = fromRight ["failed"] (P.parse (P.many parseNumberLike) "" line)
+parseSubstring :: String -> [String]
+parseSubstring substring = fromRight ["failed"] (P.parse (P.many parseNumberLike) "" substring)
 
-parseInput :: String -> [[String]]
-parseInput input = map parseLine $ lines input
+getDigit :: String -> [[String]]
+getDigit input = map parseSubstring $ tails input
+
+parseLine :: String -> Int
+parseLine line = removeNoise $ combine $ map combine $ getDigit line
 
 combine [] = []
 combine [x] = x
 combine (x : xs) = x ++ combine xs
 
-sumTwo input = map (removeNoise . combine) $ parseInput input
-
---- Failed Attempt
-
-parseDigitSpelled :: String -> Maybe Int
-parseDigitSpelled [] = Nothing
-parseDigitSpelled input@(x : _)
-    | "one" `isPrefixOf` input = Just 1
-    | "two" `isPrefixOf` input = Just 2
-    | "three" `isPrefixOf` input = Just 3
-    | "four" `isPrefixOf` input = Just 4
-    | "five" `isPrefixOf` input = Just 5
-    | "six" `isPrefixOf` input = Just 6
-    | "seven" `isPrefixOf` input = Just 7
-    | "eight" `isPrefixOf` input = Just 8
-    | "nine" `isPrefixOf` input = Just 9
-    | isDigit x = Just $ digitToInt x
-    | otherwise = Nothing
-
-firstAndLastDigitsNum :: (String -> Maybe Int) -> String -> Int
-firstAndLastDigitsNum maybeDigit input = head digits * 10 + last digits
-  where
-    digits = mapMaybe maybeDigit $ tails input
-
 findSumTwo :: String -> Int
-findSumTwo input = sum $ map (firstAndLastDigitsNum parseDigitSpelled) $ lines input
+findSumTwo input = sum $ map parseLine $ lines input
 
 main :: IO ()
 main = do
     input <- readFile "input/One.input"
-    print $ findSumOne input
     print $ findSumTwo input
