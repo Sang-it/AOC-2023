@@ -1,3 +1,5 @@
+module One where
+
 import Control.Applicative ((<|>))
 import Control.Arrow (right)
 import Data.Char (digitToInt, isDigit, isNumber)
@@ -82,4 +84,5 @@ findSumTwo input = sum $ map parseLine $ lines input
 main :: IO ()
 main = do
     input <- readFile "input/One.input"
+    print $ findSumOne input
     print $ findSumTwo input
