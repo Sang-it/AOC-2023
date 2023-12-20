@@ -1,4 +1,4 @@
-module Two where
+module Two (partOne, partTwo) where
 
 import Data.Either (fromRight)
 import Data.List (maximumBy)
@@ -7,14 +7,14 @@ import Data.Ord (comparing)
 import qualified Text.ParserCombinators.Parsec as P
 
 -- Part One
-numberOfBalls :: [(String, Integer)]
+numberOfBalls :: [(String, Int)]
 numberOfBalls =
     [ ("red", 12)
     , ("green", 13)
     , ("blue", 14)
     ]
 
-parsePrefix :: P.Parser Integer
+parsePrefix :: P.Parser Int
 parsePrefix = do
     P.string "Game"
     P.try P.spaces
@@ -23,7 +23,7 @@ parsePrefix = do
     P.try P.spaces
     return $ read gameId
 
-parseLine :: P.Parser Integer
+parseLine :: P.Parser Int
 parseLine = do
     gameId <- parsePrefix
     colors <- P.sepBy (P.sepBy parseColor $ P.char ',') (P.char ';')
@@ -40,7 +40,8 @@ parseColor = do
     let t = fromJust $ lookup c numberOfBalls
     return (t >= read n)
 
-findSumOne input = sum $ map (fromRight 0 . P.parse parseLine "") $ lines input
+partOne :: String -> Int
+partOne input = sum $ map (fromRight 0 . P.parse parseLine "") $ lines input
 
 -- Part Two
 parseLine_ = do
@@ -51,7 +52,7 @@ parseLine_ = do
     let green = fromJust $ lookUpMax "green" $ concat colors
     return $ product $ map snd [red, blue, green]
 
-parseColor_ :: P.Parser (String, Integer)
+parseColor_ :: P.Parser (String, Int)
 parseColor_ = do
     P.try P.spaces
     n <- P.many P.digit
@@ -59,15 +60,9 @@ parseColor_ = do
     c <- P.choice [P.string "red", P.string "blue", P.string "green"]
     return (c, read n)
 
-lookUpMax :: String -> [(String, Integer)] -> Maybe (String, Integer)
+lookUpMax :: String -> [(String, Int)] -> Maybe (String, Int)
 lookUpMax val xs = case filter (\(key, _) -> key == val) xs of
     [] -> Nothing
     values -> Just $ maximumBy (comparing snd) values
 
-findSumTwo input = sum $ map (fromRight 0 . P.parse parseLine_ "") $ lines input
-
-main :: IO ()
-main = do
-    input <- readFile "input/Two.input"
-    print $ findSumOne input
-    print $ findSumTwo input
+partTwo input = sum $ map (fromRight 0 . P.parse parseLine_ "") $ lines input

@@ -1,4 +1,4 @@
-module One where
+module One (partOne, partTwo) where
 
 import Control.Applicative ((<|>))
 import Control.Arrow (right)
@@ -16,8 +16,8 @@ parseNumber = filter isNumber
 removeNoise :: String -> Int
 removeNoise xs = read (head xs : [last xs])
 
-findSumOne :: String -> Int
-findSumOne input = sum $ map (removeNoise . parseNumber) (lines input)
+partOne :: String -> Int
+partOne input = sum $ map (removeNoise . parseNumber) (lines input)
 
 -- Part Two
 spelledNums =
@@ -78,11 +78,5 @@ combine [] = []
 combine [x] = x
 combine (x : xs) = x ++ combine xs
 
-findSumTwo :: String -> Int
-findSumTwo input = sum $ map parseLine $ lines input
-
-main :: IO ()
-main = do
-    input <- readFile "input/One.input"
-    print $ findSumOne input
-    print $ findSumTwo input
+partTwo :: String -> Int
+partTwo input = sum $ map parseLine $ lines input
